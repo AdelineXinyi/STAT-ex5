@@ -33,6 +33,7 @@ library(gganimate)     # for adding animation layers to ggplots
 library(transformr)    # for "tweening" (gganimate)
 library(gifski)        # need the library for creating gifs but don't need to load each time
 library(shiny)         # for creating interactive apps
+library(zoo)
 theme_set(theme_minimal())
 ```
 
@@ -82,10 +83,74 @@ Once your repository is created, you should always open your **project** rather 
 ## Warm-up exercises from tutorial
 
   1. Choose 2 graphs you have created for ANY assignment in this class and add interactivity using the `ggplotly()` function.
+```{r}
+lettuce_weight<-garden_harvest %>% 
+  filter(vegetable%in%("lettuce")) %>% 
+  ggplot(aes(x=weight),text=weight)+
+  geom_histogram()+
+  labs(title="harvest distribution of lettuce",y="number of lettuce falling in each weight",x="weight(grams)")+
+  theme(plot.title = element_text(hjust = 0.5,colour = "black", face = "bold", 
+    size = 18, vjust = 1))
+
+ggplotly(lettuce_weight,
+         tooltip = c("text","x"))
+```
+
+```{r}
+beets_cum<-garden_harvest %>% 
+  filter(vegetable=="beets") %>% 
+  group_by(variety,date) %>% 
+  summarize(sumweight=sum(weight)) %>% 
+  mutate(pounds = sumweight*0.00220462,
+         cumpound=cumsum(pounds)) %>% 
+  ggplot(aes(y=cumpound,
+             x=date,
+             color=variety),
+         text=cumpound)+
+  geom_line()+
+  scale_color_manual(values=c("purple","green","yellow"))+
+  labs(title="cumulative harvest by day for each variety of beet",x="date",y="cumulative weight(gram)")+
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=18,vjust=1))
+
+ggplotly(beets_cum,
+         tooltip = c("text","x"))
+```
+
   
   2. Use animation to tell an interesting story with the `small_trains` dataset that contains data from the SNCF (National Society of French Railways). These are Tidy Tuesday data! Read more about it [here](https://github.com/rfordatascience/tidytuesday/tree/master/data/2019/2019-02-26).
 
 ```{r}
+racing_train<-small_trains %>% 
+  mutate(date=as.Date(as.yearmon(with(small_trains,paste(year,month,sep="-")),"%Y-%m"))) %>% 
+  group_by(date,departure_station) %>% 
+  summarise(mean_delay=mean(num_late_at_departure)) %>% 
+  top_n(n = 10, wt = mean_delay) %>%  
+  arrange(date,mean_delay) %>% 
+  mutate(rank = 1:n()) %>% 
+  ggplot(aes(x=mean_delay,
+             y=factor(rank),
+             fill=departure_station,
+             group=departure_station))+
+  geom_col()+
+  geom_text(aes(label = departure_station),
+            x = -10,
+            hjust = "right") +
+  facet_wrap(vars(date), scales = "free_y") +
+  scale_x_continuous(limits = c(-100,NA),
+                     breaks = c(seq(0,400,20))) +
+  labs(title = "month mean delay time of stations",
+       subtitle = "date: {frame_time}",
+       x = "", 
+       y = "") +
+  theme(axis.line = element_blank(), 
+        panel.grid = element_blank(),
+        axis.text.y = element_blank(),
+        legend.position = "none") +
+  scale_fill_viridis_d()+
+  transition_time(date)
+
+animate(racing_train, nframes = 200, duration = 30)
+anim_save("racing_train.gif")
 
 ```
 
