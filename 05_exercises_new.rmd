@@ -12,7 +12,7 @@ output:
 
 
 ```{r setup, include=FALSE}
-#knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
+knitr::opts_chunk$set(echo = TRUE, error=TRUE, message=FALSE, warning=FALSE)
 ```
 
 ```{r libraries}
@@ -269,7 +269,7 @@ panama<-ggmap(panama_map)+
             aes(x =lon,
                 y = lat,
                 color=event),
-            size = 2) +
+            size = 3) +
   labs(title = "Panama path way",
        subtitle = "Date: {frame_along}",
        x = "", 
@@ -305,10 +305,11 @@ census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_ce
 
 states_map <- map_data("state")
 ```
+
 ```{r}
 covid<-covid19 %>% 
   group_by(state) %>% 
-  filter(day(as.Date(date))==15) %>% 
+  filter(day(date)==15) %>% 
   mutate(state=str_to_lower(state))
 
 covid_pop <-covid %>% 
@@ -332,7 +333,7 @@ covid_anim<-covid_pop %>%
   theme(plot.title = element_text(hjust = 0.5,colour = "black", face = "bold", 
     size = 14, vjust = 1))+
   transition_time(date)
-
+#only show the 15th
 animate(covid_anim, nframes = 200, duration = 10)
 anim_save("covid_anim.gif")
 ```
