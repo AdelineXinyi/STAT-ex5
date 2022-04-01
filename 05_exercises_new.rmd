@@ -347,7 +347,7 @@ knitr::include_graphics("covid_anim.gif")
   7. This app will also use the COVID data. Make sure you load that data and all the libraries you need in the `app.R` file you create. You should create a new project for the app, separate from the homework project. Below, you will post a link to the app that you publish on shinyapps.io. You will create an app to compare states' daily number of COVID cases per 100,000 over time. The x-axis will be date. You will have an input box where the user can choose which states to compare (`selectInput()`), a slider where the user can choose the date range, and a submit button to click once the user has chosen all states they're interested in comparing. The graph should display a different line for each state, with labels either on the graph or in a legend. Color can be used if needed. 
   
 Put the link to your app here: 
-  [here]()
+  [here](https://adelinexinyi.shinyapps.io/shiny_app/)
   
   
 ## GitHub link
