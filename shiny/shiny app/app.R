@@ -32,33 +32,39 @@ covid_pop <-covid %>%
     mutate(covid_per_10000 = (cases/est_pop_2018)*10000)
 
 
-
 ui <- fluidPage(
-    sliderInput(inputId = "date", 
-                label = "Time Range",
-                min = min(covid_pop$date),
-                max = max(covid_pop$date),
-                value=c(min(covid_pop$date),max(covid_pop$date))),
-    selectInput("state", 
-                "States", 
-                choices=unique(covid_pop$state)),
-                # choices = covid_pop %>% 
-                #     arrange(state) %>% 
-                #     distinct(state)%>% 
-                #     pull(state),
-                # multiple = TRUE),
-    submitButton(text = "Create my plot!"),
-    plotOutput(outputId = "timeplot"))
+    sidebarLayout(
+        sidebarPanel(
+                 sliderInput(inputId = "date", 
+                            label = "Time Range",
+                            min = min(covid_pop$date),
+                            max = max(covid_pop$date),
+                            value = c(min(covid_pop$date),max(covid_pop$date))),
+                 selectInput("state", 
+                             "States", 
+                             choices = covid_pop %>%
+                             arrange(state) %>%
+                             distinct(state)%>%
+                             pull(state),
+                             multiple = TRUE),    
+                  submitButton(text = "Create my plot!")
+                 ),
+        
+         mainPanel(
+             plotOutput(outputId = "timeplot")
+             )
+        )
+)
 
 server <- function(input, output){
     output$timeplot <- renderPlot({
         covid_pop%>%
-            filter(state==input$state) %>%
-            ggplot() +
-            geom_line(aes(y=covid_per_10000,x=date))+
+            filter(state%in%input$state) %>%
+            ggplot(aes(y=covid_per_10000,x=date,color=state)) +
+            geom_line()+
             labs(title="Most recent proportion of cumulative number\nin 10000 people number of COVID-19 cases",
                  subtitle = input$date,
-                 
+                 y="daily cases per 10,000 people",
                  fill="cases\nper 10000 people")+
             theme(plot.title = element_text(hjust = 0.5,colour = "black", face = "bold",
                                             size = 14, vjust = 1))

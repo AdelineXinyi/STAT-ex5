@@ -110,7 +110,7 @@ beets_cum<-garden_harvest %>%
   geom_line()+
   scale_color_manual(values=c("purple","green","yellow"))+
   labs(title="cumulative harvest by day for each variety of beet",x="date",y="cumulative weight(gram)")+
-  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=18,vjust=1))
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=13,vjust=1))
 
 ggplotly(beets_cum,
          tooltip = c("text","x"))
@@ -137,7 +137,7 @@ racing_train<-small_trains %>%
             hjust = "right") +
   scale_x_continuous(limits = c(-100,NA),
                      breaks = c(seq(0,400,20))) +
-  labs(title = "month mean delay time of stations",
+  labs(title = "month mean delay time of stations in minute",
        subtitle = "date: {frame_time}",
        x = "", 
        y = "") +
@@ -146,13 +146,13 @@ racing_train<-small_trains %>%
         axis.text.y = element_blank(),
         legend.position = "none") +
   scale_fill_viridis_d()+
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=13,vjust=1))+
   transition_time(date)
-
-#transition_manual
 
 animate(racing_train, nframes = 200, duration = 30)
 anim_save("racing_train.gif")
 ```
+
 ```{r}
 knitr::include_graphics("racing_train.gif")
 ```
@@ -167,10 +167,7 @@ knitr::include_graphics("racing_train.gif")
 
 I have started the code for you below. The `complete()` function creates a row for all unique `date`/`variety` combinations. If a variety is not harvested on one of the harvest dates in the dataset, it is filled with a value of 0.
 
-```{r}
-#arrange what?
-#??
-#set positions
+```{r,eval=FALSE}
 tomato_dailyweight<-garden_harvest %>% 
   filter(vegetable == "tomatoes") %>% 
   group_by(date, variety) %>% 
@@ -187,23 +184,23 @@ tomato_dailyweight<-garden_harvest %>%
              fill=variety))+
   geom_area()+
   geom_text(aes(label = variety),
+            color="red",
             position="stack",
-            hjust = "right") +
+            hjust = "right",
+            check_overlap = TRUE) +
   labs(title = "Tomato varieties daily harvest weight",
        subtitle = "date:  {frame_along}",
-       x = "", 
-       y = "",
+       x="",
+       y = "pounds",
        fill="variety") +
   theme(axis.line = element_blank(), 
         panel.grid = element_blank(),
-        axis.text.y = element_blank(),
         legend.position = "none") +
   scale_fill_viridis_d()+
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=13,vjust=1))+
   transition_reveal(date)
 
-#transition_manual
-
-
+animate(tomato_dailyweight)
 anim_save("tomato_dailyweight.gif")
   
 ```
@@ -222,7 +219,7 @@ knitr::include_graphics("tomato_dailyweight.gif")
   * Show the time in the subtitle.  
   * CHALLENGE: use the `ggimage` package and `geom_image` to add a bike image instead of a red point. You can use [this](https://raw.githubusercontent.com/llendway/animation_and_interactivity/master/bike.png) image. See [here](https://goodekat.github.io/presentations/2019-isugg-gganimate-spooky/slides.html#35) for an example. 
   * Add something of your own! And comment on if you prefer this to the static map and why or why not.
-```{r}
+```{r,eval=FALSE}
 mallorca_map <- get_stamenmap(
     bbox = c(left =1.4145 , bottom =38.9893 , right =4.4083 , top = 40.2355), 
     maptype = "terrain", 
@@ -235,14 +232,14 @@ mallorca<-ggmap(mallorca_map)+
             aes(x =lon , y = lat, color = ele),
             size = 2) +
   labs(title = "Molorca path way",
-       subtitle = "Date: {frame_along}",
-       x = "", 
-       y = "") +
+       subtitle = "Date: {frame_along}") +
   scale_color_viridis_c() +
   theme_map() +
   theme()+
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=13,vjust=1))+
   transition_reveal(along=time)
 
+animate(mallorca)
 anim_save("mallorca.gif")
 ```
 ```{r}
@@ -252,8 +249,7 @@ knitr::include_graphics("mallorca.gif")
 
   5. In this exercise, you get to meet Lisa's sister, Heather! She is a proud Mac grad, currently works as a Data Scientist where she uses R everyday, and for a few years (while still holding a full-time job) she was a pro triathlete. You are going to map one of her races. The data from each discipline of the Ironman 70.3 Pan Am championships, Panama is in a separate file - `panama_swim`, `panama_bike`, and `panama_run`. Create a similar map to the one you created with my cycling data. You will need to make some small changes: 1. combine the files putting them in swim, bike, run order (HINT: `bind_rows()`), 2. make the leading dot a different color depending on the event (for an extra challenge, make it a different image using `geom_image()!), 3. CHALLENGE (optional): color by speed, which you will need to compute on your own from the data. You can read Heather's race report [here](https://heatherlendway.com/2016/02/10/ironman-70-3-pan-american-championships-panama-race-report/). She is also in the Macalester Athletics [Hall of Fame](https://athletics.macalester.edu/honors/hall-of-fame/heather-lendway/184) and still has records at the pool. 
   
-```{r}
-#both by event?
+```{r,eval=FALSE}
 panama_data<-panama_swim %>% 
   bind_rows(panama_bike,panama_run)
 panama_map <- get_stamenmap(
@@ -271,15 +267,13 @@ panama<-ggmap(panama_map)+
                 color=event),
             size = 3) +
   labs(title = "Panama path way",
-       subtitle = "Date: {frame_along}",
-       x = "", 
-       y = "") +
+       subtitle = "Date: {frame_along}") +
   scale_color_viridis_d() +
   theme_map() +
-  theme()+
+  theme(plot.title = element_text(hjust=0.5,color="black",face="bold",size=13,vjust=1))+
   transition_reveal(along=time)
 
-
+animate(panama)
 anim_save("panama.gif")
 ```
   
@@ -306,7 +300,7 @@ census_pop_est_2018 <- read_csv("https://www.dropbox.com/s/6txwv3b4ng7pepe/us_ce
 states_map <- map_data("state")
 ```
 
-```{r}
+```{r,eval=FALSE}
 covid<-covid19 %>% 
   group_by(state) %>% 
   filter(day(date)==15) %>% 
@@ -323,17 +317,18 @@ covid_anim<-covid_pop %>%
            aes(map_id = state, 
                fill = covid_per_10000,
                group = date)) +
-  expand_limits(x = states_map$long , y =states_map$lat ) + 
+  expand_limits(x = states_map$long , y =states_map$lat) + 
   theme_map()+
   theme(legend.background = element_blank())+
   scale_fill_continuous_tableau(label=scales::comma)+
   labs(title="Most recent proportion of cumulative number\nin 10000 people number of COVID-19 cases",
-       subtitle = "Date: {frame_time}",
+       subtitle = "Date: {closest_state}",
        fill="cases\nper 10000 people")+
   theme(plot.title = element_text(hjust = 0.5,colour = "black", face = "bold", 
     size = 14, vjust = 1))+
-  transition_time(date)
-#only show the 15th
+  transition_states(date)
+
+
 animate(covid_anim, nframes = 200, duration = 10)
 anim_save("covid_anim.gif")
 ```
@@ -352,6 +347,8 @@ knitr::include_graphics("covid_anim.gif")
   7. This app will also use the COVID data. Make sure you load that data and all the libraries you need in the `app.R` file you create. You should create a new project for the app, separate from the homework project. Below, you will post a link to the app that you publish on shinyapps.io. You will create an app to compare states' daily number of COVID cases per 100,000 over time. The x-axis will be date. You will have an input box where the user can choose which states to compare (`selectInput()`), a slider where the user can choose the date range, and a submit button to click once the user has chosen all states they're interested in comparing. The graph should display a different line for each state, with labels either on the graph or in a legend. Color can be used if needed. 
   
 Put the link to your app here: 
+  [here]()
+  
   
 ## GitHub link
 
